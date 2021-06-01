@@ -3,7 +3,7 @@ ___
 
 # gshop based on Vue project
 
-[TOC]
+
 ## 项目开发准备
 ``` bash
 
