@@ -6,5 +6,6 @@ export default {
     longitude: 116.36867,
     address: {}, // 地址相关信息对象
     categorys: [], // food category
-    shops: [] // shops data
+    shops: [], // shops data
+    userInfo: {} // 用户信息
 }

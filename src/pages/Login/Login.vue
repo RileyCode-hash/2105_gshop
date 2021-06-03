@@ -10,11 +10,11 @@
             @click="loginWay = true"
             >短信登录</a
           >
-          <a
+          <anpm
             href="javascript:;"
             :class="{ on: !loginWay }"
             @click="loginWay = false"
-            >密码登录</a
+            >密码登录</anpm
           >
         </div>
       </div>
@@ -34,7 +34,7 @@
                 :class="{ right_phone: rightPhone }"
                 @click.prevent="getCode"
               >
-                {{ computeTime > 0 ? `已发送(${computeTime})` : '获取验证码' }}
+                {{ computeTime > 0 ? `已发送(${computeTime}s)` : '获取验证码' }}
               </button>
             </section>
             <section class="login_verification">
@@ -66,14 +66,14 @@
                   maxlength="8"
                   placeholder="密码"
                   v-if="showPwd"
-                  v-mode="Pwd"
+                  v-model="pwd"
                 />
                 <input
                   type="password"
                   maxlength="8"
                   placeholder="密码"
                   v-else
-                  v-mode="Pwd"
+                  v-model="pwd"
                 />
                 <div
                   class="switch_button"
@@ -93,8 +93,10 @@
                 />
                 <img
                   class="get_verification"
-                  src="./images/captcha.svg"
+                  src="http://localhost:4000/captcha"
                   alt="captcha"
+                  @click="getCaptcha"
+                  ref="captcha"
                 />
               </section>
             </section>
@@ -107,29 +109,27 @@
         <i class="iconfont icon-jiantou2"></i>
       </a>
     </div>
-    <AlertTip
-      :alertText="alertText"
-      v-show="alertShow"
-      @closeTip="closeTip"
-    ></AlertTip>
+
+    <AlertTip :alertText="alertText" v-show="alertShow" @closeTip="closeTip" />
   </section>
 </template>
 
 <script>
-import AlertTip from '../../components/AlertTip/AlertTip'
+import AlertTip from '../../components/AlertTip/AlertTip.vue'
+import { reqSendCode, reqSmsLogin, reqPwdLogin } from '../../api'
 export default {
   data() {
     return {
-      loginWay: true, // true代表短信登陆，false代表密码登陆,
-      computeTime: 0, // 记时的时间
+      loginWay: false, // true代表短信登陆, false代表密码
+      computeTime: 0, // 计时的时间
       showPwd: false, // 是否显示密码
-      phone: '',
-      Pwd: '', // 密码
+      phone: '', // 手机号
       code: '', // 短信验证码
-      name: '',
+      name: '', // 用户名
+      pwd: '', // 密码
       captcha: '', // 图形验证码
-      alertText: '',
-      alertShow: false
+      alertText: '', // 提示文本
+      alertShow: false // 是否显示警告框
     }
   },
 
@@ -141,55 +141,108 @@ export default {
 
   methods: {
     // 异步获取短信验证码
-    getCode() {
-      alert('-----')
-      // 如果当前没有记时
+    async getCode() {
+      // 如果当前没有计时
       if (!this.computeTime) {
         // 启动倒计时
         this.computeTime = 30
-        const intervalId = setInterval(() => {
+        this.intervalId = setInterval(() => {
           this.computeTime--
           if (this.computeTime <= 0) {
-            // 停止记时
-            clearInterval(intervalId)
+            // 停止计时
+            clearInterval(this.intervalId)
           }
         }, 1000)
-        // 发送ajax请求（向指定手机号发送验证码短信，后台做的事情）
+
+        // 发送ajax请求(向指定手机号发送验证码短信)
+        const result = await reqSendCode(this.phone)
+        if (result.code === 1) {
+          // 显示提示
+          this.showAlert(result.msg)
+          // 停止计时
+          if (this.computeTime) {
+            this.computeTime = 0
+            clearInterval(this.intervalId)
+            this.intervalId = undefined
+          }
+        }
       }
     },
-    // 异步登陆
+
     showAlert(alertText) {
       this.alertShow = true
       this.alertText = alertText
     },
-    login() {
-      // 前台表单验证，不同登陆方式需要字段不一样
+    // 异步登陆
+    async login() {
+      let result
+      // 前台表单验证
       if (this.loginWay) {
+        // 短信登陆
         const { rightPhone, phone, code } = this
         if (!this.rightPhone) {
-          // 手机号不准确
+          // 手机号不正确
           this.showAlert('手机号不正确')
+          return
         } else if (!/^\d{6}$/.test(code)) {
-          // 验证码必须是6位数字
-          this.showAlert('验证码必须是6位数字')
+          // 验证必须是6位数字
+          this.showAlert('验证必须是6位数字')
+          return
         }
+        // 发送ajax请求短信登陆
+        result = await reqSmsLogin(phone, code)
       } else {
+        // 密码登陆
         const { name, pwd, captcha } = this
         if (!this.name) {
-          // 用户必须指定
-          this.showAlert('用户必须指定')
+          // 用户名必须指定
+          this.showAlert('用户名必须指定')
+          return
         } else if (!this.pwd) {
           // 密码必须指定
           this.showAlert('密码必须指定')
+          return
         } else if (!this.captcha) {
-          this.showAlert('验证码必须指定')
           // 验证码必须指定
+          this.showAlert('验证码必须指定')
+          return
         }
+        // 发送ajax请求密码登陆
+        result = await reqPwdLogin({ name, pwd, captcha })
+      }
+
+      // 停止计时
+      if (this.computeTime) {
+        this.computeTime = 0
+        clearInterval(this.intervalId)
+        this.intervalId = undefined
+      }
+
+      // 根据结果数据处理
+      if (result.code === 0) {
+        const user = result.data
+        // 将user保存到vuex的state
+        this.$store.dispatch('recordUser', user)
+        // 去个人中心界面
+        this.$router.replace('/profile')
+      } else {
+        // 显示新的图片验证码
+        this.getCaptcha()
+        // 显示警告提示
+        const msg = result.msg
+        this.showAlert(msg)
       }
     },
+    // 关闭警告框
     closeTip() {
       this.alertShow = false
       this.alertText = ''
+    },
+    // 获取一个新的图片验证码
+    getCaptcha() {
+      // 每次指定的src要不一样
+      this.$refs.captcha.src =
+        'http://localhost:4000/captcha?time=' + Date.now()
     }
   },
 
@@ -200,6 +253,8 @@ export default {
 </script>
 
 <style lang="stylus" rel="stylesheet/stylus">
+@import '../../common/stylus/mixins.styl';
+
 .loginContainer {
   width: 100%;
   height: 100%;
@@ -323,7 +378,6 @@ export default {
               }
 
               >.switch_circle {
-                // transform translateX(27px)
                 position: absolute;
                 top: -1px;
                 left: -1px;
