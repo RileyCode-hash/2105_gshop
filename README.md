@@ -1,10 +1,117 @@
 
-___
 
-# gshop based on Vue project
+# learning Vue through a real-life food-delivery-application
+> This is my learning note about how Spring core features like IoC, AOP works, and some mini codes inclued.
 
-[TOC]
-## 项目开发准备
+
+## Table of Contents
+* [General Information](#general-information)
+* [Setup](#setup)
+* [Project Structure](#project-structure)
+* [Components](#components )
+* [Screenshots](#screenshots)
+
+* [Usage](#usage)
+* [Project Status](#project-status)
+* [Room for Improvement](#room-for-improvement)
+* [Acknowledgements](#acknowledgements)
+* [Contact](#contact)
+<!-- * [License](#license) -->
+
+
+<!-- ## General Information -->
+- Provide general information about your project here.
+- What problem does it (intend to) solve?
+- What is the purpose of your project?
+- Why did you undertake it?
+<!-- You don't have to answer all the questions - just the ones relevant to your project. -->
+
+## Setup
+What are the project requirements/dependencies? Where are they listed? A requirements.txt or a Pipfile.lock file perhaps? Where is it located?
+
+Proceed to describe how to install / setup one's local environment / get started with the project.
+---
+## SPA, MPA
+- **SPA**
+  - Pros: more user-friendly, most resources (Ex: HTML, CSS, Scripts) are only loaded once throughout the lifespan of application, can custom  transition animation
+  - Cons: The initial data request can be slow to download, because heavy frameworks have to be loaded to the client side, not friendly to search engines(SEO).
+  ![](https://cdn.shopify.com/app-store/listing_images/0dce682fb3602fe48c948f046351cae8/icon/CM+lh970lu8CEAE=.png)
+ 
+<br>
+
+- **MPA**
+  - Pros: more SEO-friendly
+  - Cons: There is no option to re-use the same back-end code to develop a mobile application, pages pass datas through URL、cookie或者localstorage
+
+we chose SPA to build our application for better user-experience
+
+## Project Structure
+```vue
+src
+|── assets          // resource, image, style, iconfont
+├── components      // 
+├── config          // config，axios，switch
+├── plugins         // generate router, require、store object
+├── directives      // provide several hook functions
+├── routes          // 
+├── service         // 
+├── utils           // 
+└── views           // 
+```
+
+## Components
+
+## Screenshots
+![Example screenshot](./img/screenshot.png)
+<!-- If you have screenshots you'd like to share, include them here. -->
+
+
+
+
+
+## Usage
+How does one go about using it?
+Provide various use cases and code examples here.
+
+`write-your-code-here`
+
+
+## Project Status
+**Project is**:  _in progress_
+ <!-- / _complete_ / _no longer being worked on_.  -->
+
+
+<!-- ## Room for Improvement
+Include areas you believe need improvement / could be improved. Also add TODOs for future development.
+
+Room for improvement:
+- Improvement to be done 1
+- Improvement to be done 2
+
+To do:
+- Feature to be added 1
+- Feature to be added 2 -->
+
+
+## Acknowledgements
+Give credit here.
+- This project was based on [this tutorial](https://www.youtube.com/watch?v=QdOVR-f_6uI&list=PLmOn9nNkQxJFI2BHGAfzO4UPw7tEoFv8k&index=40m).
+- Many thanks to 尚硅谷
+
+
+## Contact
+Created by **Riley ripple.shen31@gmail.com**- feel free to contact me!
+
+
+<!-- Optional -->
+<!-- ## License -->
+<!-- This project is open source and available under the [... License](). -->
+
+<!-- You don't have to include all sections - just the one's relevant to your project -->
+# Gshop Based on Vue Project
+
+
+## General Information 
 ``` bash
 
 # 项目描述
@@ -91,7 +198,12 @@ git init
    git remote add origin https://github.com/RileyCode-hash/2105_gshop.git
     git push origin master
 
-### http://eslint.org/docs/rules/comma-dangle  Unexpected trailing comma， 分号， 双引号号等与eslint格式冲突
+---
+### 项目排错
+
+#### 1.http://eslint.org/docs/rules/comma-dangle  Unexpected trailing comma，分号，双引号号等与eslint格式冲突
+
+````
 首页-》 setting --》 vetur里面打开setting.json
  "prettier": {
             "semi": false, // 取消分号
@@ -99,23 +211,113 @@ git init
             "trailingComma": "none" // 取消最后的逗号
         }
 
+````
+## 项目描述二
+### 异步数据
++ **封装 ajax**
 
-----
+  + promise + axios 封装 ajax 请求的函数
+  + 封装每个接口对应的请求函数（根据接口定义 ajax 请求函数）
+  + 解决 ajax 的跨越域问题：配置代理，对代理的理解，代理是转发请求，运行在前台服务器的程序，拦截请求是为了转发请求
+<br>
 
++ **vuex 编码**
+  + 创建所有相关的模块：store 文件夹里面 js 文件 ：index/state/mutation/action/getters/mutation-types
+  + 设计 **state**: 从后台获取的数据
+  + 实现 **actions**：
+    + 定义异步 action：async/await
+    + 流程： 发 ajax 获取数据，commit 给 mutation
+  + 实现 **mutations**:给状态赋值
+  + 实现 **index**:创建 store 对象（固定代码）
+  + main.js:配置 store
+<br>
 
++ **组件异步显示数据**
+  + (触发异步 App.vue 调用，从后台发请求获得)在 mounted() 通过 $store.dispatch('actionName') 来异步获取后台数据到 state 中
+  +  mapState(['xxx']) 读取 state 中数据到组件中
+  + 模板里面显示 xxx 数据 
+<br>
 
-# vue学习笔记
++ **模板中显示数据的来源**
+  + **data**：自身的数据（内部改变）
+  + **props**： 外部传入的数据（外部改变）
+  + **computed**：根据 data/props/别的 compute/state/getters
+<br>
 
-## el 選項
++ **异步显示轮播图**
+  + 通过**vuex**获取 foodCategorys 数组（发请求，读取）
+  + 对数组进行整合计算
+  + 使用  Swipe 显示轮播，如何在界面更新之后创建 Swiper 对象:
+    + 1.使用回调 + $nextTick()
+    + 2.使用 watch + $nextTick()
+<br>
+
+### 登陆注册
+  + 切换登陆方式：短信/密码
+  + 手机号合法检查
+  + 倒计时效果
+  + 切换显示或隐藏密码
+  + 前台验证提示
+<br>
+
+### 前后台交互相关问题
+  + 如何查看应用是否发送某个 ajax 请求： 
+  **游览器 network**
+  + 发 jax 请求 404
+  **请求路径检查，代理时候生效，服务器应用是否运行**
+  + 后台返回了数据，但页面没有显示
+  **vuex 中是否有， 组件中是否读取**
+<br>
+
+---
+## vue 学习笔记
+
+### el 
 ````bash
 <div id = "app></div>
 var app = new Vue({
   el: '#app'
 })
 ````
-连接在一起，存取<div id = “app></div>的元素， 可以通过app.$e1来进行存取
+连接在一起，存取`<div id = “app></div>`的元素， 可以通过 app.$e1 来进行存取
 
-## data 
+### Vue.js中ref ($refs)
+````js
+/* 添加ref属性 */
+< id="app">
+    <h1 ref="h1Ele">这是H1</h1>
+    <hello ref="ho"></hello>
+    <button @click="getref">获取H1元素</button> </>
+/* 获取注册过 ref 的所有组件或元素 */
+
+methods: {
+        getref() {
+          // 表示从 $refs对象 中, 获取 ref 属性值为: h1ele DOM元素或组件
+           console.log(this.$refs.h1Ele.innerText);
+           this.$refs.h1ele.style.color = 'red';// 修改html样式
+ 
+          console.log(this.$refs.ho.msg);// 获取组件数据
+          console.log(this.$refs.ho.test);// 获取组件的方法
+        }
+      }
+````
+图形验证码：login with Captcha in Vue
+````js
+<img class="get_verification" 
+        src="http://localhost:4000/captcha" 
+        alt="captcha"
+        @click="getCaptcha" 
+        ref="captcha">
+              
+methods: {
+          getCaptcha () {
+                   //   this.$refs.captcha  直接获取到Dom元素
+                     this.$refs.captcha.src = 'http://localhost:4000/captcha?time='+Date.now()
+            }
+      }
+````
+
+### data 
 
 在Vue中建立data的選項，將可能會用到的資料全部放到data之中，方便我們維護。
 ````bash
@@ -130,7 +332,7 @@ console.log(app.name); // andy
 app.name = 'alex';
 console.log(app.name); // alex
 ````
-## data中定義一個名為car的資料，只要在視圖中使用{{car}} 就能顯示出car的資料內容
+### data中定義一個名為car的資料，只要在視圖中使用{{car}} 就能顯示出car的資料內容
 ````bash
 <body>
     <div id="app">
@@ -146,7 +348,7 @@ var app = new Vue({
    })
 ````
 
-## html而非將資料解釋後的純文字，可以使用v-html
+### html而非將資料解釋後的純文字，可以使用v-html
 ````bash
 <body>
     <div id="app">
@@ -162,7 +364,7 @@ var app = new Vue({
    })
 </script>
 ````
-## 侦听属性watch：
+### 侦听属性watch：
 不支持缓存，数据变，直接会触发相应的操作；
 watch支持异步；
 监听的函数接收两个参数，第一个参数是最新的值；第二个参数是输入之前的值；
@@ -181,7 +383,7 @@ watch: {
   }
 }
 ````
-## 格式化文本，我們可以添加” | ”對資料進行過濾
+### 格式化文本，我們可以添加” | ”對資料進行過濾
 ````bash
 <body>
     <div id="app">
@@ -202,7 +404,7 @@ var app = new Vue({
    })
 </script>
 ````
-## v-bind v-on
+### v-bind v-on
 ````bash
 <a v-bind:href="url"></a>
 ：
@@ -212,7 +414,7 @@ var app = new Vue({
 ：
 <button @click="handleClick"></button>
 ````
-##  v-text / v-html
+###  v-text / v-html
 ````bash
 
 <body>
@@ -241,7 +443,7 @@ v-html將note的內容直接渲染出來
 v-text將note的內容原封不動顯示出來，並直接忽略<i>標籤
 {{}}與v-text不同的是，他有保留<i>標籤，因此字體為斜體
 
-##  v-cloak 网速慢时DOM中的{{}}会显示出来，用v-cloak + css能幫助在Vue实例化之前先給元素新增一個样式，常常會使用none這個样式。
+###  v-cloak 网速慢时DOM中的{{}}会显示出来，用v-cloak + css能幫助在Vue实例化之前先給元素新增一個样式，常常會使用none這個样式。
 ````bash
 
 <div id="app" v-cloak>
@@ -264,7 +466,7 @@ CSS STYLE:
 }
 ````
 
-##  v-once 只会被渲染一次，后面变静态
+###  v-once 只会被渲染一次，后面变静态
 ````bash
 
 <div id="app" v-once>
@@ -279,7 +481,7 @@ var app = new Vue({
 </script>
 ````
 
-##  v-if , v-else-if, v-else
+###  v-if , v-else-if, v-else
 ````bash
 
 <div id="app">
@@ -296,7 +498,7 @@ var app = new Vue({
 </script>
 ````
 
-##  v-show 改變元素的CSS的display屬性，當v-show的值為false，元素則會隱藏，檢視DOM結構會看到元素上嵌入了display:none;
+###  v-show 改變元素的CSS的display屬性，當v-show的值為false，元素則會隱藏，檢視DOM結構會看到元素上嵌入了display:none;
 ````bash
 <div id="app">
   <p v-show="status === 1">當status為1時顯示此行</p>
@@ -312,13 +514,13 @@ var app = new Vue({
 ````bash
 <p style="display: none;"> 當status為1時顯示此行</p>
 ````
-v-if vs v-show
+**v-if  vs  v-show**
 雖然這兩者的功能類似，但v-if才是真正的條件繪製，它會真的去銷毀或重建元素及綁定的事件，如果運算式為false，一開始元素就不會被繪製，但v-show都會將元素編譯，只是加了CSS的屬性。
 使用時機：
 如果元件會頻繁被切換-> v-show
 不經常變換的場景-> v-if （負擔較大）
 
-## v-for 循环
+### v-for 循环
 在进行数据传递之前，我们要了解下key属性，它和v-for使用，用来帮助Vue标识列表中的元素，这样Vue就不需要在列表变化时重新创建它们。但是Vue需要一个唯一的标识，即key来识别哪些元素是被复用的。
 ````bash
 <div id="app">
@@ -380,7 +582,7 @@ addidas --- 0
 nike --- 1
 nubalance --- 2
 
-## 现实一个todolist
+### 实现一个todolist
 ````bash
 export default {
   name: 'app',
@@ -476,7 +678,7 @@ export default {
   </div>
 </template>
 ````
-## v-bind 属性绑定
+### v-bind 属性绑定
 ````bash
 <div id = '#app'>
    <div v-bind:class = "color"> </div>
@@ -528,7 +730,7 @@ img的src綁定的是data中的imgSrc屬性，如此一來以後當data中的img
 ````
 
 
-## v-bind 陣列語法
+### v-bind 陣列語法
 ````bash
 <div id = '#app'>
    <div v-bind:class="[ac,color]"></div>
@@ -547,7 +749,7 @@ Vue渲染後為：
 <div class = "active red"> </div>
 ````
 
-## v-bind 对比陈列和物件{}的表达方式：
+### v-bind 对比陈列和物件{}的表达方式：
 ````bash
 <div id = '#app' v-bind:style="{color: redColor，fontSize: font + 'px'}">
 </div>
@@ -580,7 +782,7 @@ Vue渲染後為：
 ````
 
 
-## v-model 双向绑定：互动性功能
+### v-model 双向绑定：互动性功能
 ````bash
 
 <body>
@@ -599,7 +801,7 @@ var app = new Vue({
 </script>
 ````
 
-## v-model 双向绑定textarea：互动性功能
+### v-model 双向绑定textarea：互动性功能
 ````bash
 <body>
     <div id="app">
@@ -619,7 +821,7 @@ var app = new Vue({
 </script>
 ````
 
-## v-model 单项选择题
+### v-model 单项选择题
 ````bash
 
 <body>
@@ -642,7 +844,7 @@ var app = new Vue({
 </script>
 ````
 
-## v-on 单项选择题
+### v-on 单项选择题
 一般不會把方法寫在data裡，原因是data就是拿來放資料的，把方法也寫進去不就太雜亂了，因此我們要使用Vue的一個叫做「methods」的選項，裡面專門存放方法
 
 ````bash
@@ -660,7 +862,7 @@ var app = new Vue({
   }
 })
 ````
-## v-on 传入参数运算
+### v-on 传入参数运算
 
 ````bash
 <body>
@@ -681,7 +883,7 @@ var app = new Vue({
    })
 </script>
 ````
-## v-on 传入event
+### v-on 传入event
 
 ````bash
 <body>
@@ -702,7 +904,7 @@ var app = new Vue({
    })
 </script>
 ````
-## v-on 传入参数和event
+### v-on 传入参数和event
 
 ````bash
 <body>
@@ -750,7 +952,7 @@ var app = new Vue({
    })
 </script>
 ````
-## v-on preventDefault
+### v-on preventDefault
 為click事件加入一個修飾符 prevent 它就等同於執行了event.preventDefault()的意思，所以點擊後，也不會跳轉到google。
 ````bash
 
@@ -948,6 +1150,7 @@ HTML的部分
 <button @click=”handlePlus(item)”>+</button>
 ````
 當按下+這個按鈕時，則會執行methods中的handlePlus函式， — 按鈕則是handleSub，這邊我們把「item」傳進去，這個item就是我們點到哪一個商品時，會將這個商品的item傳進去，而item中都有一個count的屬性，所以我們只要讓count值++或減減就可以了，這邊要注意的是，count>1才能讓count--否則值會變成負的
+
 ````bash
 methods:{
   handlePlus: function(item){
@@ -972,3 +1175,62 @@ methods:{
    this.itemList.splice(index,1);
 }
 ````
+### vue传参方式有：query、params+动态路由传参
++ **1.1 query + path + router**
+
+query通过path切换路由
+````bash
+ <router-link :to="{path: 'Detail', query: { id: 1 }}">前往Detail页面</router-link>
+ ````
++ **1.2 params + name + router**
+
+params通过name切换路由
+````bash
+ <router-link :to="{name: 'Detail', params: { id: 1 }}">前往Detail页面</router-link>
+ ````
+ + **2.1 query + this.$route.query**
+
+query通过this.$route.query接收参数
+````bash
+ created () {
+    const id = this.$route.query.id;
+}
+ ````
++ **2.2 params + this.$route.params**
+
+ params通过this.$route.params来接收参数
+````bash
+created () {
+    const id = this.$route.params.id;
+}
+ ````
+  + **3.1 query传参的url展现方式：/detail?id=1&user=123&identity=1&更多参数**
+
+  + **3.2 params＋动态路由的url方式：/detail/123**
+  ````bash
+{      
+    path: '/detail/:id',      
+    name: 'Detail',      
+    component: Detail    
+},
+ ````
+ **parameter is a must, here is a test, we need two parameters called id and token, but only add id to the router**
+
+```` bash
+{      
+    path: '/detail/:id',      
+    name: 'Detail',      
+    component: Detail    
+},
+
+// passing two parameters to route: id and token
+<router-link :to="{name: 'Detail', params: { id: 1, token: '123456' }}">go Detail page</router-link>
+
+// received at detail page
+created () {
+    const id = this.$route.params.id;
+    const token = this.$route.params.token;
+}
+````
+after refresh, we lose token parameter
+
